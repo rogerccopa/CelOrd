@@ -4,7 +4,7 @@ body {
 }
 
 .navbar {
-  background-color: gray;
+  background-color: darkblue;
   color: white;
   display: flex;
   justify-content: space-between;
@@ -36,4 +36,10 @@ body {
 
 .navbar .menu li a:hover {
   text-decoration: underline;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
 }
