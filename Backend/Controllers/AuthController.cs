@@ -10,9 +10,7 @@ namespace Backend.Controllers
         [HttpPost("login")]
         public IActionResult Login()
         {
-            // CONTINUE HERE... support json post
-            
-            return Ok("Login");
+            return Ok("Hello from login Action");
         }
 
         [HttpPost("register")]
