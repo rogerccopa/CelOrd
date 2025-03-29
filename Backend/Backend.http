@@ -1,7 +1,13 @@
 @Backend_HostAddress = http://localhost:5228
 
-POST {{Backend_HostAddress}}/api/auth/login
+POST {{Backend_HostAddress}}/api/auth/signup
 Content-Type: application/json
 Accept: application/json
+
+{
+    "company":"Test Company",
+    "email":"rogerccopa@gmail.com",
+    "password":"abc"
+}
 
 ###

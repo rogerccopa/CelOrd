@@ -13,10 +13,10 @@ namespace Backend.Controllers
             return Ok("Hello from login Action");
         }
 
-        [HttpPost("register")]
-        public IActionResult Register()
+        [HttpPost("signup")]
+        public IActionResult SignUp([FromBody] SignupRequest signUp)
         {
-            return Ok("Register");
+            return Ok($"Hello from Signup; {signUp.Company}, {signUp.Email}, {signUp.Password}");
         }
 
         [HttpPost("logout")]
@@ -25,4 +25,6 @@ namespace Backend.Controllers
             return Ok("Logout");
         }
     }
+
+    public record SignupRequest(string Company, string Email, string Password);
 }
