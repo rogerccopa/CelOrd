@@ -16,6 +16,18 @@ namespace Backend.Controllers
         [HttpPost("signup")]
         public IActionResult SignUp([FromBody] SignupRequest signUp)
         {
+            // CONTINUE HERE... test this block of code
+            // Check if the request is null or if any of the fields are empty
+            if (signUp == null || 
+                string.IsNullOrEmpty(signUp.Company) || 
+                string.IsNullOrEmpty(signUp.Email) || 
+                string.IsNullOrEmpty(signUp.Password))
+            {
+                return BadRequest("Todos los cmapos son necesarios");
+            }
+
+            // Create new company database
+
             return Ok($"Hello from Signup; {signUp.Company}, {signUp.Email}, {signUp.Password}");
         }
 
