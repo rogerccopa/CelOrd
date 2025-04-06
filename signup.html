@@ -70,7 +70,7 @@
         const frmData = new FormData(frm);
         const data = {
           company: frmData.get("company"),
-          username: frmData.get("username"),
+          email: frmData.get("username"),
           password: frmData.get("password"),
         };
 
@@ -84,7 +84,8 @@
 
           console.log(resp.data);
         } catch (ex) {
-          console.error(ex);
+          console.log("AN EXCEPTION OCCURRED");
+          console.log(ex.response.data);
         }
       }
     </script>
