@@ -1,27 +1,55 @@
-var builder = WebApplication.CreateBuilder(args);
+using Microsoft.Extensions.Options;
 
-builder.Services.AddCors(options =>
+internal class Program
 {
-    options.AddDefaultPolicy(builder => builder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
-});
+    private static void Main(string[] args)
+    {
+        var builder = WebApplication.CreateBuilder(args);
 
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+        builder.Services.AddCors(options =>
+        {
+            options.AddDefaultPolicy(builder => builder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
+        });
 
-builder.Services.AddControllers();
+        // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+        builder.Services.AddEndpointsApiExplorer();
+        builder.Services.AddSwaggerGen();
 
-var app = builder.Build();
+        builder.Services.AddControllers();
 
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
+        // read from appsettings.json
+        var adminDbConnStr = builder.Configuration.GetConnectionString("AdminDbConnStr") ??
+                             throw new Exception("AdminDbConnStr not found in appsettings.json");
+        adminDbConnStr = adminDbConnStr
+            .Replace("DbUsername", builder.Configuration["DbUsername"])     // read from system EnvVars
+            .Replace("DbPassword", builder.Configuration["DbPassword"]);    // read from system EnvVars
+
+        var clientDbConnStr = builder.Configuration.GetConnectionString("ClientDbConnStr") ??
+                             throw new Exception("ClientDbConnStr not found in appsettings.json");
+        clientDbConnStr = clientDbConnStr
+            .Replace("DbUsername", builder.Configuration["DbUsername"])     // read from system EnvVars
+            .Replace("DbPassword", builder.Configuration["DbPassword"]);    // read from system EnvVars
+
+        builder.Services.AddDbContext<AdminDbContext>(Options => Options.UseSqlServer(adminDbConnStr));
+        builder.Services.AddDbContext<ClientDbContext>(Options => Options.UseSqlServer(clientDbConnStr));
+
+        builder.Services.AddDbContext<DatabaseContext>(options =>
+            options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))
+        );
+
+        var app = builder.Build();
+
+        // Configure the HTTP request pipeline.
+        if (app.Environment.IsDevelopment())
+        {
+            app.UseSwagger();
+            app.UseSwaggerUI();
+        }
+
+        app.UseCors();
+        // app.UseHttpsRedirection();
+        app.MapControllers();
+
+        app.Run();
+    }
 }
-
-app.UseCors();
-// app.UseHttpsRedirection();
-app.MapControllers();
-
-app.Run();
