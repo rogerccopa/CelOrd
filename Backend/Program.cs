@@ -1,4 +1,7 @@
-using Microsoft.Extensions.Options;
+using Backend.Data;
+using Backend.Data.Repository;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.EntityFrameworkCore;
 
 internal class Program
 {
@@ -13,7 +16,7 @@ internal class Program
 
         // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
         builder.Services.AddEndpointsApiExplorer();
-        builder.Services.AddSwaggerGen();
+        //builder.Services.AddSwaggerGen();
 
         builder.Services.AddControllers();
 
@@ -32,19 +35,23 @@ internal class Program
 
         builder.Services.AddDbContext<AdminDbContext>(Options => Options.UseSqlServer(adminDbConnStr));
         builder.Services.AddDbContext<ClientDbContext>(Options => Options.UseSqlServer(clientDbConnStr));
+        
+        builder.Services.AddScoped<IRepository, Repository>();
+        builder.Services.AddAuthentication(options =>
+		{
+            options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+		})
+            .AddCookie(options =>
+		    {
+			    options.SlidingExpiration = true;
+                options.Cookie.Name = "CelOrden";
+                options.Cookie.HttpOnly = true;
+				options.LoginPath = "/api/auth/login";
+			    options.LogoutPath = "/api/auth/logout";
+		    });
+        builder.Services.AddAuthorization();
 
-        builder.Services.AddDbContext<DatabaseContext>(options =>
-            options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))
-        );
-
-        var app = builder.Build();
-
-        // Configure the HTTP request pipeline.
-        if (app.Environment.IsDevelopment())
-        {
-            app.UseSwagger();
-            app.UseSwaggerUI();
-        }
+		var app = builder.Build();
 
         app.UseCors();
         // app.UseHttpsRedirection();

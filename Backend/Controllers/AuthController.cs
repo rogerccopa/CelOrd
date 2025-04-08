@@ -1,41 +1,56 @@
-using Microsoft.AspNetCore.Http;
+using Backend.Data.Repository;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Backend.Controllers
+namespace Backend.Controllers;
+
+[Route("api/[controller]")]
+[ApiController]
+public class AuthController(
+		ILogger<AuthController> logger,
+		IRepository repository,
+		IDataProtectionProvider dpProvider ) : ControllerBase
 {
-    [Route("api/[controller]")]
-    [ApiController]
-    public class AuthController : ControllerBase
+	private readonly ILogger<AuthController> _logger = logger;
+	private readonly IRepository _repo = repository;
+	private readonly IDataProtectionProvider _dpProvider = dpProvider;
+
+	[HttpPost("login")]
+    public IActionResult Login()
     {
-        [HttpPost("login")]
-        public IActionResult Login()
-        {
-            return Ok("Hello from login Action");
-        }
-
-        [HttpPost("signup")]
-        public IActionResult SignUp([FromBody] SignupRequest signUp)
-        {
-            // Check if the request is null or if any of the fields are empty
-            if (signUp == null || 
-                string.IsNullOrEmpty(signUp.Company) || 
-                string.IsNullOrEmpty(signUp.Email) || 
-                string.IsNullOrEmpty(signUp.Password))
-            {
-                return BadRequest("Todos los cmapos son necesarios");
-            }
-
-            // Create new company database
-            
-            return Ok($"Hello from Signup; {signUp.Company}, {signUp.Email}, {signUp.Password}");
-        }
-
-        [HttpPost("logout")]
-        public IActionResult Logout()
-        {
-            return Ok("Logout");
-        }
+        return Ok("Hello from login Action");
     }
 
-    public record SignupRequest(string Company, string Email, string Password);
+    [HttpPost("signup")]
+    public IActionResult SignUp([FromBody] LoginDto signUp)
+    {
+        // Check if the request is null or if any of the fields are empty
+        if (signUp == null || 
+            string.IsNullOrEmpty(signUp.Company) || 
+            string.IsNullOrEmpty(signUp.Username) || 
+            string.IsNullOrEmpty(signUp.Password))
+        {
+            return BadRequest("Todos los campos son necesarios");
+        }
+
+        var result = _repo.SetupNewAccount(signUp.Company, signUp.Username, signUp.Password);
+        
+        if (result.IsFailure)
+		{
+			return BadRequest(result.Error);
+		}
+
+		//var redirectUrl = $"{Request.Scheme}://{result.Value.Subdomain}.{Request.Host}/login";
+		//return Redirect(redirectUrl);
+
+		return Ok(result.Value);
+	}
+
+	[HttpPost("logout")]
+    public IActionResult Logout()
+    {
+        return Ok("Logout");
+    }
 }
+
+public record LoginDto(string Company, string Subdomain, string Username, string Password);

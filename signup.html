@@ -70,7 +70,8 @@
         const frmData = new FormData(frm);
         const data = {
           company: frmData.get("company"),
-          email: frmData.get("username"),
+          subdomain: "",
+          username: frmData.get("username"),
           password: frmData.get("password"),
         };
 

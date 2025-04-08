@@ -1,8 +1,11 @@
+using Backend.Models;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
+using static Backend.Models.EntityTypes;
 
 namespace Backend.Data;
 
-public class AdminDbContext
+public class AdminDbContext : DbContext
 {
     public DbSet<Company> Companies { get; set; }
 
@@ -67,7 +70,7 @@ public class AdminDbContext
         }
     }
 
-    public CeluordenAccount GetAccount(string dbName)
+    public CelOrdenAccount GetAccount(string dbName)
     {
         string dbConnStr = this.Database.GetConnectionString()!;
 
@@ -82,7 +85,7 @@ public class AdminDbContext
             if (!reader.Read())
                 throw new Exception($"Entidad {dbName} no encontrado en la base de datos");
 
-            return new CeluordenAccount()
+            return new CelOrdenAccount()
             {
                 Id = reader.GetInt32(0),
                 CompanyName = reader.GetString(1),
