@@ -20,7 +20,6 @@ internal class Program
 
         builder.Services.AddControllers();
 
-
         // read from appsettings.json
         var adminDbConnStr = builder.Configuration.GetConnectionString("AdminDbConnStr") ??
                              throw new Exception("AdminDbConnStr not found in appsettings.json");
@@ -36,31 +35,31 @@ internal class Program
 
         builder.Services.AddDbContext<AdminDbContext>(Options => Options.UseSqlServer(adminDbConnStr));
         builder.Services.AddDbContext<ClientDbContext>(Options => Options.UseSqlServer(clientDbConnStr));
-        
+
         builder.Services.AddScoped<IRepository, Repository>();
         builder.Services.AddAuthentication(options =>
-		{
+        {
             options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-		})
+        })
             .AddCookie(options =>
-		    {
-			    options.SlidingExpiration = true;
+            {
+                options.SlidingExpiration = true;
                 options.Cookie.Name = "CelOrden";
                 options.Cookie.HttpOnly = true;
-				options.LoginPath = "/api/auth/login";
-			    options.LogoutPath = "/api/auth/logout";
-		    });
+                options.LoginPath = "/api/auth/login";
+                options.LogoutPath = "/api/auth/logout";
+            });
         builder.Services.AddAuthorization();
 
-		var app = builder.Build();
+        var app = builder.Build();
 
-		if (app.Environment.IsDevelopment())
-		{
-			app.UseSwagger();
-			app.UseSwaggerUI();
-		}
+        if (app.Environment.IsDevelopment())
+        {
+            app.UseSwagger();
+            app.UseSwaggerUI();
+        }
 
-		app.UseCors();
+        app.UseCors();
         // app.UseHttpsRedirection();
         app.MapControllers();
 
