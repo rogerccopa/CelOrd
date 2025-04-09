@@ -1,4 +1,4 @@
-@Backend_HostAddress = http://localhost:5228
+@Backend_HostAddress = https://localhost:7189
 
 POST {{Backend_HostAddress}}/api/auth/signup
 Content-Type: application/json
@@ -8,6 +8,15 @@ Accept: application/json
     "company":"Test Company",
     "email":"rogerccopa@gmail.com",
     "password":"abc"
+}
+
+###
+
+POST {{Backend_HostAddress}}/api/auth/signup
+Content-Type: application/json
+
+{
+  //LoginDto
 }
 
 ###

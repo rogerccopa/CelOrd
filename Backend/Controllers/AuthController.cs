@@ -37,7 +37,7 @@ public class AuthController(
         
         if (result.IsFailure)
 		{
-			return BadRequest(result.Error);
+			return BadRequest(result);
 		}
 
 		//var redirectUrl = $"{Request.Scheme}://{result.Value.Subdomain}.{Request.Host}/login";

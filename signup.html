@@ -55,6 +55,7 @@
             />
           </div>
           <button type="submit" class="btn btn-primary">Registrarse</button>
+          <div id="error" class="alert alert-danger mt-3" style="display: none;"></div>
         </form>
       </div>
     </main>
@@ -85,8 +86,12 @@
 
           console.log(resp.data);
         } catch (ex) {
-          console.log("AN EXCEPTION OCCURRED");
-          console.log(ex.response.data);
+          // convert json response to an object
+          const errorObj = ex.response.data;
+
+          const errorDiv = document.getElementById("error");
+          errorDiv.innerHTML = errorObj.error;
+          errorDiv.style.display = "block";
         }
       }
     </script>

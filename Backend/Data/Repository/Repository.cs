@@ -17,15 +17,12 @@ public class Repository(AdminDbContext adminDbContext) : IRepository
 	{
 		string newSubdomain = GenerateSlug(companyName);
 
-		// CONITNUE HERE... connect to database
-		
+		if (_adminDbCtx.Companies.Any(c => c.Subdomain == newSubdomain))
+		{
+			return Result<CelOrdenAccount>.Failure($"[{companyName}]  ya existe.");
+		}
 
-		//if (_adminDbCtx.Companies.Any(c => c.Subdomain == newSubdomain))
-		//{
-		//	return Result<CelOrdenAccount>.Failure($"[{companyName}]  ya existe.");
-		//}
-
-		string newDbName = "TestDB"; // _adminDbCtx.GetNextDbName();
+		string newDbName = _adminDbCtx.GetNextDbName();
 
 		var newCompany = new Company()
 		{
@@ -34,26 +31,28 @@ public class Repository(AdminDbContext adminDbContext) : IRepository
 			DbName = newDbName
 		};
 
-		//_adminDbCtx.Add(newCompany);
-		//_adminDbCtx.SaveChanges();
+		_adminDbCtx.Add(newCompany);
+		_adminDbCtx.SaveChanges();
 
 		string sqlFilePath = $"{Environment.CurrentDirectory}/Files/ClientDbBase.sql";
 		string newAcctSqlScript = File.ReadAllText(sqlFilePath).Replace("[co100]", $"[{newDbName}]");
 
-		//string newDbConnStr = _adminDbCtx.CreateDatabase(newDbName, newAcctSqlScript);
+		string newDbConnStr = _adminDbCtx.CreateDatabase(newDbName, newAcctSqlScript);
 
 		User user = new() { Username = adminEmail, Password = password };
 		var hasher = new PasswordHasher<User>();
 		string passwordHash = hasher.HashPassword(user, password);
 
-		//_adminDbCtx.InsertAdminUser(adminEmail, passwordHash, newDbConnStr);
+		_adminDbCtx.InsertAdminUser(adminEmail, passwordHash, newDbConnStr);
 
-		//var newAccount = _adminDbCtx.GetAccount(newDbName);
+		var newAccount = _adminDbCtx.GetAccount(newDbName);
+		/*
 		var newAccount = new CelOrdenAccount { 
 			CompanyName = companyName, 
 			Subdomain = newSubdomain, 
 			DbName = newDbName
 		};
+		*/
 
 		return Result<CelOrdenAccount>.Success(newAccount);
 	}

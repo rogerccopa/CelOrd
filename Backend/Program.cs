@@ -16,9 +16,10 @@ internal class Program
 
         // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
         builder.Services.AddEndpointsApiExplorer();
-        //builder.Services.AddSwaggerGen();
+        builder.Services.AddSwaggerGen();
 
         builder.Services.AddControllers();
+
 
         // read from appsettings.json
         var adminDbConnStr = builder.Configuration.GetConnectionString("AdminDbConnStr") ??
@@ -53,7 +54,13 @@ internal class Program
 
 		var app = builder.Build();
 
-        app.UseCors();
+		if (app.Environment.IsDevelopment())
+		{
+			app.UseSwagger();
+			app.UseSwaggerUI();
+		}
+
+		app.UseCors();
         // app.UseHttpsRedirection();
         app.MapControllers();
 
