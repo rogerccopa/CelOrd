@@ -22,16 +22,26 @@ public class Repository(AdminDbContext adminDbContext) : IRepository
 			return Result<CelOrdenAccount>.Failure($"[{companyName}]  ya existe.");
 		}
 
-		string newDbName = _adminDbCtx.GetNextDbName();
+		//if (_adminDbCtx.Companies.Any(c => c.Email == adminEmail))
+		//{
+		//	return Result<CelOrdenAccount>.Failure($"[{adminEmail}] ya existe.");
+		//}
 
 		var newCompany = new Company()
 		{
 			CompanyName = companyName,
 			Subdomain = newSubdomain,
-			DbName = newDbName
+			DbName = "",
+			Email = adminEmail
 		};
 
 		_adminDbCtx.Add(newCompany);
+		_adminDbCtx.SaveChanges();
+
+		string newDbName = $"co{newCompany.Id}";
+
+		newCompany.DbName = newDbName;
+		_adminDbCtx.Update(newCompany);
 		_adminDbCtx.SaveChanges();
 
 		string sqlFilePath = $"{Environment.CurrentDirectory}/Files/ClientDbBase.sql";
@@ -46,13 +56,6 @@ public class Repository(AdminDbContext adminDbContext) : IRepository
 		_adminDbCtx.InsertAdminUser(adminEmail, passwordHash, newDbConnStr);
 
 		var newAccount = _adminDbCtx.GetAccount(newDbName);
-		/*
-		var newAccount = new CelOrdenAccount { 
-			CompanyName = companyName, 
-			Subdomain = newSubdomain, 
-			DbName = newDbName
-		};
-		*/
 
 		return Result<CelOrdenAccount>.Success(newAccount);
 	}
@@ -140,5 +143,10 @@ public class Repository(AdminDbContext adminDbContext) : IRepository
 		}
 
 		return sb.ToString().Normalize(NormalizationForm.FormC);
+	}
+
+	public void LogError(string moduleName, string error)
+	{
+		// CONTINUE HERE...
 	}
 }

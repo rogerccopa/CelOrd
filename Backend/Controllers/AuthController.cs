@@ -33,17 +33,24 @@ public class AuthController(
             return BadRequest("Todos los campos son necesarios");
         }
 
-        var result = _repo.SetupNewAccount(signUp.Company, signUp.Username, signUp.Password);
-        
-        if (result.IsFailure)
+		try
 		{
-			return BadRequest(result);
+			var result = _repo.SetupNewAccount(signUp.Company, signUp.Username, signUp.Password);
+
+			if (result.IsFailure)
+			{
+				return BadRequest(result);
+			}
+
+			//var redirectUrl = $"{Request.Scheme}://{result.Value.Subdomain}.{Request.Host}/login";
+			//return Redirect(redirectUrl);
+
+			return Ok(result);
 		}
-
-		//var redirectUrl = $"{Request.Scheme}://{result.Value.Subdomain}.{Request.Host}/login";
-		//return Redirect(redirectUrl);
-
-		return Ok(result.Value);
+		catch (Exception ex)
+		{
+			_repo.LogException(ex.Message);
+		}
 	}
 
 	[HttpPost("logout")]

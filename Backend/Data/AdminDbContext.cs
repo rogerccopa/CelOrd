@@ -8,8 +8,9 @@ namespace Backend.Data;
 public class AdminDbContext : DbContext
 {
     public DbSet<Company> Companies { get; set; }
+    public DbSet<AppError> AppErrors { get; set; }
 
-    public AdminDbContext(DbContextOptions<AdminDbContext> dbCtxOptions) : base(dbCtxOptions) { }
+	public AdminDbContext(DbContextOptions<AdminDbContext> dbCtxOptions) : base(dbCtxOptions) { }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -18,20 +19,7 @@ public class AdminDbContext : DbContext
         base.OnModelCreating(modelBuilder);
     }
 
-    public string GetNextDbName()
-    {
-        var lastId = Companies.Select(c => c.Id).DefaultIfEmpty().Max();
-
-        if (lastId == 0)
-            return "co101";
-
-        var lastDbName = Companies.First(c => c.Id == lastId).DbName;
-        string nextDbName = "co" + (int.Parse(lastDbName.Replace("co", "")) + 1);
-
-        return nextDbName;
-    }
-
-    public string CreateDatabase(string newDbName, string createDbTablesSql)
+	public string CreateDatabase(string newDbName, string createDbTablesSql)
     {
         string dbConnStr = this.Database.GetConnectionString()!;
         string query = $"CREATE DATABASE {newDbName}";
@@ -43,7 +31,7 @@ public class AdminDbContext : DbContext
             cmd.ExecuteNonQuery();
         }
 
-        dbConnStr = dbConnStr.Replace("Database=coadmin;", $"Database={newDbName};");
+        dbConnStr = dbConnStr.Replace("Database=co_admin;", $"Database={newDbName};");
         using (var conn = new SqlConnection(dbConnStr))
         using (var cmd = new SqlCommand(createDbTablesSql, conn))
         {
