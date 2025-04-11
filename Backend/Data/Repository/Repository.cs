@@ -22,10 +22,10 @@ public class Repository(AdminDbContext adminDbContext) : IRepository
 			return Result<CelOrdenAccount>.Failure($"[{companyName}]  ya existe.");
 		}
 
-		//if (_adminDbCtx.Companies.Any(c => c.Email == adminEmail))
-		//{
-		//	return Result<CelOrdenAccount>.Failure($"[{adminEmail}] ya existe.");
-		//}
+		if (_adminDbCtx.Companies.Any(c => c.Email == adminEmail))
+		{
+			return Result<CelOrdenAccount>.Failure($"[{adminEmail}] ya existe.");
+		}
 
 		var newCompany = new Company()
 		{
@@ -145,8 +145,15 @@ public class Repository(AdminDbContext adminDbContext) : IRepository
 		return sb.ToString().Normalize(NormalizationForm.FormC);
 	}
 
-	public void LogError(string moduleName, string error)
+	public void LogError(string moduleName, string errorMessage)
 	{
-		// CONTINUE HERE...
+		using (var conn = new SqlConnection(_adminDbCtx.Database.GetConnectionString()!))
+		using (var cmd = new SqlCommand("INSERT INTO AppErrors(Module, Error) VALUES(@module, @error)", conn))
+		{
+			conn.Open();
+			cmd.Parameters.AddWithValue("@module", moduleName);
+			cmd.Parameters.AddWithValue("@error", errorMessage.Substring(0, Math.Min(300, errorMessage.Length)));
+			cmd.ExecuteNonQuery();
+		}
 	}
 }

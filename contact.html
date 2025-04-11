@@ -8,7 +8,7 @@
       rel="stylesheet"
     />
     <link rel="stylesheet" href="styles.css" />
-    <title>CelOrden - Registro</title>
+    <title>CelOrden - Contacto</title>
   </head>
 
   <body>
@@ -28,41 +28,31 @@
     </nav>
     <main>
       <div class="container">
-        <h1>Registrarse</h1>
+        <h1>Cont&aacute;ctenos</h1>
         <br />
         <form id="frm">
           <div class="mb-3">
-            <label for="company" class="form-label">Nombre De Su Negocio</label>
+            <label for="email" class="form-label">Email &nbsp; (para responderle)</label>
             <input
               type="text"
               class="form-control"
-              id="company"
-              name="company"
+              id="email"
+              name="email"
               required
             />
           </div>
           <div class="mb-3">
-            <label for="username" class="form-label">Email &nbsp; (Usuario Admin)</label>
-            <input
-              type="text"
+            <label for="message" class="form-label">Mensaje</label>
+            <textarea
               class="form-control"
-              id="username"
-              name="username"
+              id="message"
+              name="message"
+              rows="4"
               required
-            />
+            ></textarea>
           </div>
-          <div class="mb-3">
-            <label for="password" class="form-label">Contraseña</label>
-            <input
-              type="password"
-              class="form-control"
-              id="password"
-              name="password"
-              required
-            />
-          </div>
-          <button type="submit" class="btn btn-primary">Registrarse</button>
-          <div id="error" class="alert alert-danger mt-3" style="display: none;"></div>
+          <button type="submit" class="btn btn-primary">Enviar</button>
+          <div id="success" class="alert alert-success mt-3" style="display: none;"></div>
         </form>
       </div>
     </main>
@@ -77,14 +67,12 @@
 
         const frmData = new FormData(frm);
         const data = {
-          company: frmData.get("company"),
-          subdomain: "",
-          username: frmData.get("username"),
-          password: frmData.get("password"),
+          company: frmData.get("email"),
+          message: frmData.get("message"),
         };
 
         try {
-          var url = "http://localhost:5228/api/auth/signup";
+          var url = "http://localhost:5228/api/site/contactus";
           const result = await axios.post(url, data, {
             headers: {
               "Content-Type": "application/json; charset=UTF-8",
@@ -95,7 +83,7 @@
           console.log(result.data);
         } catch (ex) {
           const errorDiv = document.getElementById("error");
-
+            
           if (ex.response == null) {
             errorDiv.innerHTML = "Error de conexión al servidor.";
           } else {

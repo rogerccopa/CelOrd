@@ -15,8 +15,9 @@ public class AdminDbContext : DbContext
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Company>().Property(entity => entity.CreatedAt).HasDefaultValueSql("getdate()");
+        modelBuilder.Entity<AppError>().Property(entity => entity.CreatedAt).HasDefaultValueSql("getdate()");
 
-        base.OnModelCreating(modelBuilder);
+		base.OnModelCreating(modelBuilder);
     }
 
 	public string CreateDatabase(string newDbName, string createDbTablesSql)

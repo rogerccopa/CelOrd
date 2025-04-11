@@ -1,11 +1,13 @@
 using Backend.Data.Repository;
+using Backend.Models;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.TagHelpers;
 
 namespace Backend.Controllers;
 
-[Route("api/[controller]")]
 [ApiController]
+[Route("api/[controller]")]
 public class AuthController(
 		ILogger<AuthController> logger,
 		IRepository repository,
@@ -35,7 +37,7 @@ public class AuthController(
 
 		try
 		{
-			var result = _repo.SetupNewAccount(signUp.Company, signUp.Username, signUp.Password);
+			Result<CelOrdenAccount> result = _repo.SetupNewAccount(signUp.Company, signUp.Username, signUp.Password);
 
 			if (result.IsFailure)
 			{
@@ -49,7 +51,12 @@ public class AuthController(
 		}
 		catch (Exception ex)
 		{
-			_repo.LogException(ex.Message);
+			string module = ControllerContext.ActionDescriptor.ControllerName;
+			string error = ex.Message + (ex.InnerException != null ? $" {ex.InnerException.Message}" : "");
+			_repo.LogError(module, error);
+
+			Result<CelOrdenAccount> result = Result<CelOrdenAccount>.Failure($"Error en servidor: {error}");
+			return BadRequest(result);
 		}
 	}
 
