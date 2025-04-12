@@ -10,17 +10,17 @@ public class AdminDbContext : DbContext
     public DbSet<Company> Companies { get; set; }
     public DbSet<AppError> AppErrors { get; set; }
 
-	public AdminDbContext(DbContextOptions<AdminDbContext> dbCtxOptions) : base(dbCtxOptions) { }
+    public AdminDbContext(DbContextOptions<AdminDbContext> dbCtxOptions) : base(dbCtxOptions) { }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Company>().Property(entity => entity.CreatedAt).HasDefaultValueSql("getdate()");
         modelBuilder.Entity<AppError>().Property(entity => entity.CreatedAt).HasDefaultValueSql("getdate()");
 
-		base.OnModelCreating(modelBuilder);
+        base.OnModelCreating(modelBuilder);
     }
 
-	public string CreateDatabase(string newDbName, string createDbTablesSql)
+    public string CreateDatabase(string newDbName, string createDbTablesSql)
     {
         string dbConnStr = this.Database.GetConnectionString()!;
         string query = $"CREATE DATABASE {newDbName}";

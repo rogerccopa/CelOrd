@@ -1,11 +1,12 @@
 ﻿using Backend.Data.Repository;
+using Backend.Models;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Backend.Controllers
 {
     [ApiController]
-    [Route("api/{controller}")]
+    [Route("api/[controller]")]
     public class SiteController(
         ILogger<AuthController> logger,
         IRepository repository,
@@ -18,7 +19,7 @@ namespace Backend.Controllers
         [HttpPost("contactus")]
         public IActionResult ContactUs()
         {
-            var result = Models.Result<string>.Success("We received your message");
+            var result = Models.Result<ErrorObj>.Success(new(0, "We received your message"));
             return Ok(result);
         }
     }

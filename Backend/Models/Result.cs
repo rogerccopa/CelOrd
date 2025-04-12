@@ -26,7 +26,21 @@ public class Result<TValue> where TValue : class, new()
         _error = error;
     }
 
-    public static Result<TValue> Success(TValue value) => new Result<TValue>(value);
+    public static Result<TValue> Success(TValue value) => new(value);
 
-    public static Result<TValue> Failure(string error) => new Result<TValue>(error);
+    public static Result<TValue> Failure(string error) => new(error);
+}
+
+public class ErrorObj
+{
+    public int Code { get; set; }
+    public string Message { get; set; } = string.Empty;
+
+    public ErrorObj() { }
+
+    public ErrorObj(int code, string message)
+    {
+        Code = code;
+        Message = message;
+    }
 }
