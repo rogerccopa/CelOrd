@@ -82,17 +82,17 @@
           console.log("RESPONSE FROM SERVER API")
           console.log(result.data);
         } catch (ex) {
-          const errorDiv = document.getElementById("error");
+          const messageDiv = document.getElementById("success");
             
           if (ex.response == null) {
-            errorDiv.innerHTML = "Error de conexión al servidor.";
+            messageDiv.innerHTML = "Error de conexión al servidor.";
           } else {
             // convert json response to an object
             const errorObj = ex.response.data;
-            errorDiv.innerHTML = errorObj.error;
+            messageDiv.innerHTML = errorObj.error;
           }
 
-          errorDiv.style.display = "block";
+          messageDiv.style.display = "block";
         }
       }
     </script>
