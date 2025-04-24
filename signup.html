@@ -62,7 +62,8 @@
             />
           </div>
           <button type="submit" class="btn btn-primary">Registrarse</button>
-          <div id="error" class="alert alert-danger mt-3" style="display: none;"></div>
+          <div id="successMsg" class="alert alert-success mt-3" style="display: none;"></div>
+          <div id="failureMsg" class="alert alert-danger mt-3" style="display: none;"></div>
         </form>
       </div>
     </main>
@@ -74,6 +75,9 @@
 
       async function postForm(e) {
         e.preventDefault();
+
+        document.getElementById("failureMsg").style.display = "none";
+        document.getElementById("successMsg").style.display = "none";
 
         const frmData = new FormData(frm);
         const data = {
@@ -93,18 +97,25 @@
 
           console.log("RESPONSE FROM SERVER API")
           console.log(result.data);
+
+          const messageDiv = document.getElementById("successMsg");
+          messageDiv.innerHTML = "Se registr&oacute; exitosamente. <br/>" +
+            "Ahora ingrese usando su usuario (email) y contraseña. " +
+            "<a href='/login.html?negocio=" + result.data.value.companyName + "'>AQU&Iacute;</a>";
+          messageDiv.style.display = "block";
+          
         } catch (ex) {
-          const errorDiv = document.getElementById("error");
+          const messageDiv = document.getElementById("failureMsg");
 
           if (ex.response == null) {
-            errorDiv.innerHTML = "Error de conexión al servidor.";
+            messageDiv.innerHTML = "Error de conexión al servidor.";
           } else {
             // convert json response to an object
             const errorObj = ex.response.data;
-            errorDiv.innerHTML = errorObj.error;
+            messageDiv.innerHTML = errorObj.error;
           }
 
-          errorDiv.style.display = "block";
+          messageDiv.style.display = "block";
         }
       }
     </script>

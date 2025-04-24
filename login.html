@@ -94,6 +94,18 @@
           console.error(ex);
         }
       }
+
+      const urlParams = new URLSearchParams(window.location.search);
+      const negocio = urlParams.get('negocio');
+      const company = document.getElementById("company");
+      if (negocio) {
+        company.value = negocio;
+
+        // CONTINUE HERE... focus on Usuario form field
+        // const username = document.getElementById("username");
+        // username.focus();
+      }
+
     </script>
   </body>
 </html>

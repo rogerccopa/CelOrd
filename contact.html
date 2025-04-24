@@ -34,7 +34,7 @@
           <div class="mb-3">
             <label for="email" class="form-label">Email &nbsp; (para responderle)</label>
             <input
-              type="text"
+              type="email"
               class="form-control"
               id="email"
               name="email"
@@ -51,8 +51,9 @@
               required
             ></textarea>
           </div>
-          <button type="submit" class="btn btn-primary">Enviar</button>
-          <div id="success" class="alert alert-success mt-3" style="display: none;"></div>
+          <button type="submit" id="btnSend" class="btn btn-primary">Enviar</button>
+          <div id="successMsg" class="alert alert-success mt-3" style="display: none;"></div>
+          <div id="failureMsg" class="alert alert-danger mt-3" style="display: none;"></div>
         </form>
       </div>
     </main>
@@ -65,9 +66,13 @@
       async function postForm(e) {
         e.preventDefault();
 
+        const btnSend = document.getElementById("btnSend");
+        btnSend.innerHTML = "Enviando...";
+        btnSend.setAttribute("disabled", "true");
+
         const frmData = new FormData(frm);
         const data = {
-          company: frmData.get("email"),
+          email: frmData.get("email"),
           message: frmData.get("message"),
         };
 
@@ -79,20 +84,27 @@
             },
           });
 
-          console.log("RESPONSE FROM SERVER API")
-          console.log(result.data);
+          const messageDiv = document.getElementById("successMsg");
+          messageDiv.innerHTML = result.data.value.message;
+          messageDiv.style.display = "block";
         } catch (ex) {
-          const messageDiv = document.getElementById("success");
-            
+          const messageDiv = document.getElementById("failureMsg");
+          console.log(ex);
+          
           if (ex.response == null) {
             messageDiv.innerHTML = "Error de conexión al servidor.";
-          } else {
-            // convert json response to an object
-            const errorObj = ex.response.data;
-            messageDiv.innerHTML = errorObj.error;
+          }
+          else if (ex.response.data.message == null) {
+            messageDiv.innerHTML = ex.response.data.error;
+          }
+          else {
+            messageDiv.innerHTML = ex.response.data.message;
           }
 
           messageDiv.style.display = "block";
+        } finally {
+          btnSend.innerHTML = "Enviar";
+          btnSend.removeAttribute("disabled");
         }
       }
     </script>
