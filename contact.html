@@ -95,7 +95,12 @@
             messageDiv.innerHTML = "Error de conexión al servidor.";
           }
           else if (ex.response.data.message == null) {
-            messageDiv.innerHTML = ex.response.data.error;
+            if (ex.response.data.error != null) {
+              messageDiv.innerHTML = ex.response.data.error;
+            }
+            else {
+              messageDiv.innerHTML = "Error en el servidor. <br/>Si necesita ayuda, llame: +51 984757850";
+            }
           }
           else {
             messageDiv.innerHTML = ex.response.data.message;

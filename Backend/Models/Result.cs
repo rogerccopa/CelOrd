@@ -31,14 +31,14 @@ public class Result<TValue> where TValue : class, new()
     public static Result<TValue> Failure(string error) => new(error);
 }
 
-public class ErrorObj
+public class MessageObj
 {
     public int Code { get; set; }
     public string Message { get; set; } = string.Empty;
 
-    public ErrorObj() { }
+    public MessageObj() { }
 
-    public ErrorObj(int code, string message)
+    public MessageObj(int code, string message)
     {
         Code = code;
         Message = message;

@@ -1,6 +1,6 @@
-﻿using Backend.Data.Repository;
+﻿using Backend.Data;
+using Backend.Data.Repository;
 using Backend.Models;
-using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
 using System.Net.Mail;
@@ -13,45 +13,51 @@ namespace Backend.Controllers
     public class SiteController(
         ILogger<AuthController> logger,
         IRepository repository,
-        IDataProtectionProvider dpProvider) : ControllerBase
+        AppParams appParams) : ControllerBase
     {
         private readonly ILogger<AuthController> _logger = logger;
         private readonly IRepository _repo = repository;
-        private readonly IDataProtectionProvider _dpProvider = dpProvider;
+        private readonly AppParams _appParams = appParams;
 
         [HttpPost("contactus")]
         public IActionResult ContactUs([FromBody] JsonElement body)
         {
-            var result = Models.Result<ErrorObj>.Success(new(0, "Hemos recibido su mensaje."));
+            var result = Models.Result<MessageObj>.Success(new(0, "Hemos recibido su mensaje."));
 
-			// use gmail smtp server to send out email
+			// use gmail smtp server
 			var smtpClient = new SmtpClient("smtp.gmail.com")
             {
                 Port = 587,
                 EnableSsl = true,
                 DeliveryMethod = SmtpDeliveryMethod.Network,
                 UseDefaultCredentials = false,
-                Credentials = new NetworkCredential("rogerccopa@gmail.com", "upbs oiab fhwe xlwc"),
+                Credentials = new NetworkCredential(_appParams.SmtpAccount, _appParams.SmtpPassword),
                 Timeout = 30_000
 			};
 
-            string fromEmail = body.GetProperty("email").GetString() ?? "rogerccopa@yahoo.com";
+            string fromEmail = body.GetProperty("email").GetString() ?? _appParams.SmtpAccount;
             string fromMessage = body.GetProperty("message").GetString() ?? "No message";
 
-			using (var message = new MailMessage(fromEmail, "rogerccopa@gmail.com"))
+			using (var message = new MailMessage(fromEmail, _appParams.SmtpAccount))
             {
 				message.Subject = "CelOrden - Contact Us";
 				message.Body = $"FROM: {fromEmail} <br/>MESSAGE: {fromMessage}";
 				message.IsBodyHtml = true;
 				message.Priority = MailPriority.High;
+
 				try
 				{
 					smtpClient.Send(message);
 				}
 				catch (Exception ex)
 				{
-					result = Models.Result<ErrorObj>.Failure($"Error en servidor: {ex.Message}");
-					return BadRequest(result);
+					string module = ControllerContext.ActionDescriptor.ControllerName;
+					string error = ex.Message + (ex.InnerException != null ? $" {ex.InnerException.Message}" : "");
+					_repo.LogError(module, error);
+
+					result = Models.Result<MessageObj>.Failure($"Error en servidor: {ex.Message}");
+					
+					return StatusCode(StatusCodes.Status500InternalServerError, result);
 				}
 			}
 

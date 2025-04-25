@@ -33,11 +33,20 @@ internal class Program
             .Replace("DbUsername", builder.Configuration["DbUsername"])     // read from system EnvVars
             .Replace("DbPassword", builder.Configuration["DbPassword"]);    // read from system EnvVars
 
+		// read from env vars and store in AppParams
+		var appParams = new AppParams
+        {
+			SmtpAccount = builder.Configuration["CelOrden_SmtpAccount"] ?? string.Empty,
+			SmtpPassword = builder.Configuration["CelOrden_SmtpPassword"] ?? string.Empty
+		};
+		builder.Services.AddSingleton(appParams);
+
         builder.Services.AddDbContext<AdminDbContext>(Options => Options.UseSqlServer(adminDbConnStr));
         builder.Services.AddDbContext<ClientDbContext>(Options => Options.UseSqlServer(clientDbConnStr));
 
         builder.Services.AddScoped<IRepository, Repository>();
-        builder.Services.AddAuthentication(options =>
+
+		builder.Services.AddAuthentication(options =>
         {
             options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
         })

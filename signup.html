@@ -61,7 +61,7 @@
               required
             />
           </div>
-          <button type="submit" class="btn btn-primary">Registrarse</button>
+          <button id="btnSignup" type="submit" class="btn btn-primary">Registrarse</button>
           <div id="successMsg" class="alert alert-success mt-3" style="display: none;"></div>
           <div id="failureMsg" class="alert alert-danger mt-3" style="display: none;"></div>
         </form>
@@ -75,6 +75,10 @@
 
       async function postForm(e) {
         e.preventDefault();
+
+        const btnSignup = document.getElementById("btnSignup");
+        btnSignup.innerHTML = "Registrando...";
+        btnSignup.setAttribute("disabled", "true");
 
         document.getElementById("failureMsg").style.display = "none";
         document.getElementById("successMsg").style.display = "none";
@@ -116,6 +120,9 @@
           }
 
           messageDiv.style.display = "block";
+        } finally {
+          btnSignup.innerHTML = "Registrarse";
+          btnSignup.removeAttribute("disabled");
         }
       }
     </script>

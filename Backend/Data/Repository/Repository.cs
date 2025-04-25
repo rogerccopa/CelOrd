@@ -60,12 +60,12 @@ public class Repository(AdminDbContext adminDbContext) : IRepository
 		return Result<CelOrdenAccount>.Success(newAccount);
 	}
 
-	public Company GetCompany(string subdomain)
+	public Company? GetCompany(string subdomain)
 	{
 		var company = _adminDbCtx.Companies.FirstOrDefault(
-				subDom => subDom.Subdomain == subdomain || subDom.CompanyName == subdomain);
+				comp => comp.Subdomain == subdomain || comp.CompanyName == subdomain);
 
-		return company ?? new Company();
+		return company;
 	}
 
 	public User GetUser(Company company, string username, string password)
