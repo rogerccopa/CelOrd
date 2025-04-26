@@ -6,6 +6,8 @@ using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 
+using static Backend.Models.EntityTypes;
+
 namespace Backend.Controllers;
 
 [ApiController]
@@ -34,25 +36,25 @@ public class AuthController(
 		/////////// OLD CODE ///////////
 		var siteUser = _repo.GetUser(company, loginRequest.Username, loginRequest.Password);
 
-		if (siteUser.UserType == Domain.UserType.Unknown)   // invalid user credentials
+		if (siteUser.UserType == UserType.Unknown)   // invalid user credentials
 		{
-			ModelState.AddModelError("", "Usuario o contraseña incorrecto");
-			return View(loginViewModel);
+			var result = Result<MessageObj>.Failure("Usuario o contraseña incorrecto.");
+			return BadRequest(result);
 		}
 
 		string controller = "Login";
 		switch (siteUser.UserType)
 		{
-			case Domain.UserType.Admin:
+			case UserType.Admin:
 				controller = "Admin";
 				break;
-			case Domain.UserType.Cashier:
+			case UserType.Cashier:
 				// todo
 				break;
-			case Domain.UserType.Cook:
+			case UserType.Cook:
 				// todo
 				break;
-			case Domain.UserType.Attendant:
+			case UserType.Attendant:
 				// todo
 				break;
 			default:
