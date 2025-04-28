@@ -8,4 +8,5 @@ public interface IRepository
 	public Company? GetCompany(string subdomain);
 	public User GetUser(Company company, string username, string password);
 	public void LogError(string moduleName, string error);
+	public string GenerateSlug(string phrase);
 }

@@ -74,7 +74,7 @@ public class Repository(AdminDbContext adminDbContext) : IRepository
 							"FROM Users " +
 							"WHERE Username=@username";
 
-		string? clientDbConnStr = _adminDbCtx.Database.GetConnectionString()?.Replace("coadmin", company.DbName);
+		string? clientDbConnStr = _adminDbCtx.Database.GetConnectionString()?.Replace("co_admin", company.DbName);
 		User user = new();
 
 		using (var conn = new SqlConnection(clientDbConnStr))
@@ -109,7 +109,7 @@ public class Repository(AdminDbContext adminDbContext) : IRepository
 		return new User();
 	}
 
-	private string GenerateSlug(string phrase)
+	public string GenerateSlug(string phrase)
 	{
 		string str = RemoveDiacritics(phrase).ToLower();
 

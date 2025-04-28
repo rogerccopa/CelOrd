@@ -24,6 +24,11 @@ public class AuthController(
 	[HttpPost("login")]
     public IActionResult Login([FromBody] LoginDto loginRequest)
     {
+		if (string.IsNullOrEmpty(loginRequest.Subdomain))
+		{
+			loginRequest = loginRequest with {Subdomain = _repo.GenerateSlug(loginRequest.Company)};
+		}
+
 		var company = _repo.GetCompany(loginRequest.Subdomain);
 
 		if (company == null) {
@@ -31,36 +36,12 @@ public class AuthController(
 			return BadRequest(result);
 		}
 
-		// CONTINUE HERE...
-
-		/////////// OLD CODE ///////////
-		var siteUser = _repo.GetUser(company, loginRequest.Username, loginRequest.Password);
+		User siteUser = _repo.GetUser(company, loginRequest.Username, loginRequest.Password);
 
 		if (siteUser.UserType == UserType.Unknown)   // invalid user credentials
 		{
 			var result = Result<MessageObj>.Failure("Usuario o contraseña incorrecto.");
 			return BadRequest(result);
-		}
-
-		string controller = "Login";
-		switch (siteUser.UserType)
-		{
-			case UserType.Admin:
-				controller = "Admin";
-				break;
-			case UserType.Cashier:
-				// todo
-				break;
-			case UserType.Cook:
-				// todo
-				break;
-			case UserType.Attendant:
-				// todo
-				break;
-			default:
-				ViewBag.Username = loginViewModel.Username;
-				ViewBag.ErrorMsg = $"Tipo de usuario {siteUser.UserType} no es valido.";
-				return View("Login");
 		}
 
 		// create claims principal
@@ -82,12 +63,9 @@ public class AuthController(
 			}
 		);
 
-		return RedirectToAction("Index", controller);
-		/////////// OLD CODE ///////////
-
-
-		return Ok("Hello from login Action");
-    }
+		var res = Result<MessageObj>.Success(new MessageObj((int)siteUser.UserType, siteUser.UserType.ToString()));
+		return Ok(res);
+	}
 
     [HttpPost("signup")]
     public IActionResult SignUp([FromBody] LoginDto signUp)

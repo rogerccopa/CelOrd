@@ -90,13 +90,31 @@
 
         try {
           var url = "http://localhost:5228/api/auth/login";
+
           const resp = await axios.post(url, data, {
+            withCredentials: true,
             headers: {
               "Content-Type": "application/json; charset=UTF-8",
             },
           });
 
           console.log(resp.data);
+          const userType = resp.data.value.code;
+
+          // CONTINUE HERE...
+          
+          if (userType == 1) {
+            window.location.href = "admin.html";
+          } else if (userType == 2) {
+            window.location.href = "employee.html";
+          } else if (userType == 3) {
+            window.location.href = "client.html";
+          } else {
+            const messageDiv = document.getElementById("failureMsg");
+            messageDiv.innerHTML = "Tipo de usuario no reconocido.";
+            messageDiv.style.display = "block";
+          }
+
         } catch (ex) {
           const messageDiv = document.getElementById("failureMsg");
 
@@ -105,9 +123,11 @@
           } else {
             console.log(ex.response);
 
-            // convert json response to an object
-            const errorObj = ex.response.data;
-            messageDiv.innerHTML = errorObj.error;
+            if (ex.response.data.error == null) {
+              messageDiv.innerHTML = "Error en el servidor: ";
+            } else {
+              messageDiv.innerHTML = ex.response.data.error;
+            }
           }
 
           messageDiv.style.display = "block";

@@ -11,8 +11,15 @@ internal class Program
 
         builder.Services.AddCors(options =>
         {
-            options.AddDefaultPolicy(builder => builder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
-        });
+            //options.AddDefaultPolicy(builder => builder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
+            options.AddPolicy("AllowMyFrontend", policy =>
+			{
+				policy.WithOrigins("http://localhost:8080", "https://celorden.com")
+					  .AllowAnyMethod()
+					  .AllowAnyHeader()
+					  .AllowCredentials();  // Allow cookies to be sent
+			});
+		});
 
         // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
         builder.Services.AddEndpointsApiExplorer();
@@ -50,14 +57,15 @@ internal class Program
         {
             options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
         })
-            .AddCookie(options =>
-            {
-                options.SlidingExpiration = true;
-                options.Cookie.Name = "CelOrden";
-                options.Cookie.HttpOnly = true;
-                options.LoginPath = "/api/auth/login";
-                options.LogoutPath = "/api/auth/logout";
-            });
+        .AddCookie(options =>
+        {
+            options.SlidingExpiration = true;
+            options.Cookie.Name = "CelOrden";
+            options.Cookie.HttpOnly = true;
+            options.LoginPath = "/api/auth/login";
+            options.LogoutPath = "/api/auth/logout";
+        });
+
         builder.Services.AddAuthorization();
 
         var app = builder.Build();
@@ -68,10 +76,14 @@ internal class Program
             app.UseSwaggerUI();
         }
 
-        app.UseCors();
         // app.UseHttpsRedirection();
-        app.MapControllers();
+        app.UseCors("AllowMyFrontend");
 
-        app.Run();
+        app.UseAuthentication();
+        app.UseAuthorization();
+
+		app.MapControllers();
+
+		app.Run();
     }
 }
