@@ -101,15 +101,15 @@
           console.log(resp.data);
           const userType = resp.data.value.code;
 
-          // CONTINUE HERE...
-          
           if (userType == 1) {
-            window.location.href = "admin.html";
+            window.location.href = "/attendant";
           } else if (userType == 2) {
-            window.location.href = "employee.html";
+            window.location.href = "/cook";
           } else if (userType == 3) {
-            window.location.href = "client.html";
-          } else {
+            window.location.href = "/cashier";
+          } else if (userType == 4) {
+            window.location.href = "/admin";
+          }else {
             const messageDiv = document.getElementById("failureMsg");
             messageDiv.innerHTML = "Tipo de usuario no reconocido.";
             messageDiv.style.display = "block";
