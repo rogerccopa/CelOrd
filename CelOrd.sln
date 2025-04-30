@@ -1,9 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.13.35931.197 d17.13
+VisualStudioVersion = 17.13.35931.197
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CelOrdApp", "CelOrdApp\CelOrdApp.csproj", "{7B21D04F-4AF6-4C85-BC9D-F712F5A0EFD9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Domain", "Domain\Domain.csproj", "{18E9EC86-2342-474C-AB80-55CBC09BED0A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +17,10 @@ Global
 		{7B21D04F-4AF6-4C85-BC9D-F712F5A0EFD9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7B21D04F-4AF6-4C85-BC9D-F712F5A0EFD9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7B21D04F-4AF6-4C85-BC9D-F712F5A0EFD9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{18E9EC86-2342-474C-AB80-55CBC09BED0A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{18E9EC86-2342-474C-AB80-55CBC09BED0A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{18E9EC86-2342-474C-AB80-55CBC09BED0A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{18E9EC86-2342-474C-AB80-55CBC09BED0A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

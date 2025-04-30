@@ -1,0 +1,60 @@
+﻿@{
+    ViewData["Title"] = "Signup";
+}
+
+<h1 class="text-center">Registrarse</h1>
+<br />
+<form asp-controller="Account" asp-action="Signup" method="post" onsubmit="validForm(event)">
+    <div class="mb-3 mt-3">
+        <label for="companyName" class="form-label">Nombre de su negocio</label>
+        <input type="text"
+               id="companyName"
+               name="companyName"
+               class="form-control"
+               value="@ViewBag.CompanyName" />
+    </div>
+    <div class="mb-3">
+        <label for="Username" class="form-label">Email &nbsp; (Usuario Admin)</label>
+        <input type="email" 
+               id="Username" 
+               name="Username" 
+               class="form-control" 
+               value="@ViewBag.Username" />
+    </div>
+    <div class="mb-3">
+        <label for="Password" class="form-label">Contrase&ntilde;a</label>
+        <input type="password" 
+               id="Password" 
+               name="Password" 
+               class="form-control" />
+    </div>
+    <button type="submit" class="btn btn-primary">
+        Registrarse
+        <div class="loader" id="loader"></div>
+    </button>
+
+    @if (ViewBag.ErrorMsg != null)
+    {
+        <div class="text-danger">@ViewBag.ErrorMsg</div>
+    }
+</form>
+
+<script>
+    function validForm(evt) {
+        const form = evt.target;
+
+        if (form.elements['companyName'].value.trim() === '' ||
+            form.elements['Username'].value.trim() === '' ||
+            form.elements['Password'].value.trim() === '') {
+            // form is invalid
+            evt.preventDefault();
+            return;
+        }
+
+        const submitBtn = form.querySelector("button[type='submit']");
+        submitBtn.disabled = true;
+
+        const loader = document.getElementById("loader");
+        loader.style.display = "inline-block";
+    }
+</script>

@@ -1,0 +1,48 @@
+﻿@model LoginViewModel;
+
+@if (!string.IsNullOrEmpty(Model.Subdomain))
+{
+    <h1 class="text-center">@Model.Subdomain</h1>
+}
+else
+{
+    <h1 class="text-center">Ingresar</h1>
+}
+<br />
+
+<form asp-controller="Home" asp-action="Login" method="post">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+    @if (!string.IsNullOrEmpty(Model.Subdomain))
+    {
+        <input asp-for="Subdomain" type="hidden" value="@Model.Subdomain" />
+        <input asp-for="CompanyName" type="hidden" value="@Model.Subdomain" />
+    }
+    else
+    {
+        <div class="mb-3">
+            <label for="Subdomain" class="form-label">Nombre del negocio</label>
+            <input name="CompanyName"
+                   type="text"
+                   value="@Model.CompanyName"
+                   class="form-control" />
+            <span asp-validation-for="CompanyName" class="text-danger"></span>
+        </div>
+    }
+
+    <div class="mb-3">
+        <label for="Username" class="form-label">Usuario (Email)</label>
+        <input asp-for="Username" type="email" class="form-control" />
+        <span asp-validation-for="Username" class="text-danger"></span>
+    </div>
+    <div class="mb-3">
+        <label for="Password" class="form-label">Contrase&ntilde;a</label>
+        <input asp-for="Password" type="password" class="form-control" />
+        <span asp-validation-for="Password" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-primary">
+        Iniciar Sesi&oacute;n
+        <div class="loader" id="loader"></div>
+    </button>
+</form>
