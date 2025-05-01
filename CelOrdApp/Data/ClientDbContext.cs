@@ -20,65 +20,58 @@ public class ClientDbContext :DbContext
 	protected override void OnModelCreating(ModelBuilder modelBuilder)
 	{
 		// Configuring the User entity
-		modelBuilder.Entity<User>()
-			.Property(user => user.FullName)
-			.HasMaxLength(30);
-		modelBuilder.Entity<User>()
-			.Property(user => user.Username)
-			.HasMaxLength(30);
-		modelBuilder.Entity<User>()
-			.Property(user => user.Password)
-			.HasMaxLength(150);
-		modelBuilder.Entity<User>()
-			.Property(entity => entity.CreatedAt)
-			.HasDefaultValueSql("getdate()");
-		modelBuilder.Entity<User>()
-			.Property(user => user.Claims)
-			.HasConversion(
-				v => string.Join(',', v.Select(c => c.ToString())),
-				v => v.Split(',', StringSplitOptions.RemoveEmptyEntries)
-					.Select(c => (UserClaim)Enum.Parse(typeof(UserClaim), c)).ToList());
-		modelBuilder.Entity<User>().Ignore(user => user.Claims);
+		modelBuilder.Entity<User>(user =>
+		{
+			user.HasKey(u => u.Id);
+			user.Property(u => u.Id).ValueGeneratedOnAdd();
+			user.Property(u => u.FullName).HasMaxLength(30);
+			user.Property(u => u.Username).IsRequired().HasMaxLength(30);
+			user.Property(u => u.Password).IsRequired().HasMaxLength(150);
+			user.Property(u => u.UserType).IsRequired();
+			user.Property(u => u.CreatedAt).HasDefaultValueSql("getdate()");
+			user.Property(u => u.Claims).HasConversion(
+					v => string.Join(',', v.Select(c => c.ToString())),
+					v => v.Split(',', StringSplitOptions.RemoveEmptyEntries)
+						.Select(c => (UserClaim)Enum.Parse(typeof(UserClaim), c)).ToList());
+		});
+		modelBuilder.Entity<User>().Ignore(u => u.Claims); // Ignore Claims property in the database mapping
 
 		// Configuring the Product entity
-		modelBuilder.Entity<Product>()
-			.Property(prod => prod.Title)
-			.HasMaxLength(30);
-		modelBuilder.Entity<Product>()
-			.Property(prod => prod.Description)
-			.HasMaxLength(90);
-		modelBuilder.Entity<Product>()
-			.Property(prod => prod.Price)
-			.HasPrecision(9, 2);
+		modelBuilder.Entity<Product>(product =>
+		{
+			product.HasKey(p => p.Id);
+			product.Property(p => p.Id).ValueGeneratedOnAdd();
+			product.Property(p => p.Title).IsRequired().HasMaxLength(30);
+			product.Property(p => p.Description).HasMaxLength(90);
+			product.Property(p => p.Price).IsRequired().HasPrecision(9, 2);
+		});
 
 		// Configuring the Order entity
+		modelBuilder.Entity<Order>(order =>
+		{
+			order.HasKey(o => o.Id);
+			order.Property(o => o.Id).ValueGeneratedOnAdd();
+			order.Property(o => o.UserId).IsRequired();
+			order.Property(o => o.TableName).HasMaxLength(30);
+			order.Property(o => o.CreatedAt).HasDefaultValueSql("getdate()");
+			order.Property(o => o.Total).HasPrecision(9, 2);
+		});
 		modelBuilder.Entity<Order>()
-			.Property(order => order.TableName)
-			.HasMaxLength(30);
-		modelBuilder.Entity<Order>()
-			.Property(order => order.CreatedAt)
-			.HasDefaultValueSql("getdate()");
-		modelBuilder.Entity<Order>()
-			.Property(order => order.Total)
-			.HasPrecision(9, 2);
-		modelBuilder.Entity<Order>()
-			.HasMany(ord => ord.OrderItems) // Specifies that an Order has many OrderItems (one-to-many relationship)
+			.HasMany(o => o.OrderItems) // Specifies that an Order has many OrderItems (one-to-many relationship)
 			.WithOne()  // Specifies that each OrderItem is related to one Order.
-			.HasForeignKey(ordItem => ordItem.OrderId);   // Configures the foreign key in OrderItem that links it to an Order.
+			.HasForeignKey(ordItem => ordItem.OrderId); // Configures the foreign key in OrderItem to link it to an Order.
 
 		// Configuring the OrderItem entity
-		modelBuilder.Entity<OrderItem>()
-			.Property(item => item.OrderId)
-			.IsRequired();
-		modelBuilder.Entity<OrderItem>()
-			.Property(item => item.Price)
-			.HasPrecision(9, 2);
-		modelBuilder.Entity<OrderItem>()
-			.Property(item => item.Subtotal)
-			.HasPrecision(9, 2);
-		modelBuilder.Entity<OrderItem>()
-			.Property(item => item.Note)
-			.HasMaxLength(30);
+		modelBuilder.Entity<OrderItem>(ordItem =>
+		{
+			ordItem.HasKey(oi => oi.Id);
+			ordItem.Property(oi => oi.Id).ValueGeneratedOnAdd();
+			ordItem.Property(oi => oi.ProductId).IsRequired();
+			ordItem.Property(oi => oi.Quantity).IsRequired();
+			ordItem.Property(oi => oi.Price).IsRequired().HasPrecision(9, 2);
+			ordItem.Property(oi => oi.Subtotal).HasPrecision(9, 2);
+			ordItem.Property(oi => oi.Note).HasMaxLength(30);
+		});
 
 		base.OnModelCreating(modelBuilder);
 	}

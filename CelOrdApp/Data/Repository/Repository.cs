@@ -15,25 +15,34 @@ public class Repository(AdminDbContext adminDbcontext) : IRepository
 	{
 		if (_adminDbCtx.Companies.Any(c => c.Subdomain == signupRequest.Subdomain))
 		{
-			return Result<CelOrdAccount>.Failure($"[{signupRequest.CompanyName}]  ya existe.");
+			return Result<CelOrdAccount>.Failure($"{signupRequest.CompanyName}  ya existe.");
 		}
 
-		// CONITNUE HERE... use table Company ID to se new db name
-
-		string newDbName = _adminDbCtx.GetNextDbName();
+		if (_adminDbCtx.Companies.Any(c => c.Email == signupRequest.Username))
+		{
+			return Result<CelOrdAccount>.Failure($"{signupRequest.Username}  ya existe.");
+		}
 
 		var newCompany = new Company()
 		{
 			CompanyName = signupRequest.CompanyName,
 			Subdomain = signupRequest.Subdomain,
-			DbName = newDbName
+			DbName = "",
+			Email = signupRequest.Username,
 		};
 
 		_adminDbCtx.Add(newCompany);
 		_adminDbCtx.SaveChanges();
 
-		string newAcctSqlScript_filePath = $"{Environment.CurrentDirectory}/Files/ClientDbBase.sql";
-		string newAcctSqlScript = File.ReadAllText(newAcctSqlScript_filePath).Replace("[co100]", $"[{newDbName}]");
+		string newDbName = $"co{newCompany.Id}";
+
+		newCompany.DbName = newDbName;
+		_adminDbCtx.Update(newCompany);
+		_adminDbCtx.SaveChanges();
+		
+		string sqlFilePath = $"{Environment.CurrentDirectory}/Files/ClientDbBase.sql";
+		//string newAcctSqlScript = File.ReadAllText(sqlFilePath).Replace("[co_base]", $"[{newDbName}]");
+		string newAcctSqlScript = File.ReadAllText(sqlFilePath);
 
 		string newDbConnStr = _adminDbCtx.CreateDatabase(newDbName, newAcctSqlScript);
 
@@ -48,12 +57,12 @@ public class Repository(AdminDbContext adminDbcontext) : IRepository
 		return Result<CelOrdAccount>.Success(newAccount);
 	}
 
-	public Company GetCompany(string subdomain)
+	public Company? GetCompany(string subdomain)
 	{
 		var company = _adminDbCtx.Companies.FirstOrDefault(
 			subDom => subDom.Subdomain == subdomain || subDom.CompanyName == subdomain);
 
-		return company ?? new Company();
+		return company;
 	}
 
 	public User GetUser(Company company, string username, string password)
@@ -62,7 +71,7 @@ public class Repository(AdminDbContext adminDbcontext) : IRepository
 						"FROM Users " +
 						"WHERE Username=@username";
 
-		string? clientDbConnStr = _adminDbCtx.Database.GetConnectionString()?.Replace("coadmin", company.DbName);
+		string? clientDbConnStr = _adminDbCtx.Database.GetConnectionString()?.Replace("co_admin", company.DbName);
 		User user = new();
 
 		using (var conn = new SqlConnection(clientDbConnStr))

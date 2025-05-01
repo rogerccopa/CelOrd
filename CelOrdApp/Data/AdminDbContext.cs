@@ -22,23 +22,11 @@ public class AdminDbContext : DbContext
             company.Property(c => c.CompanyName).IsRequired().HasMaxLength(30);
             company.Property(c => c.Subdomain).IsRequired().HasMaxLength(30);
             company.Property(c => c.DbName).HasMaxLength(6);
-            company.Property(c => c.CreatedAt).HasDefaultValueSql("getdate()");
+			company.Property(c => c.Email).IsRequired().HasMaxLength(30);
+			company.Property(c => c.CreatedAt).HasDefaultValueSql("getdate()");
         });
 
         base.OnModelCreating(modelBuilder);
-    }
-
-    public string GetNextDbName()
-    {
-        var lastId = Companies.Select(c => c.Id).DefaultIfEmpty().Max();
-
-        if (lastId == 0)
-            return "co101";
-
-        var lastDbName = Companies.First(c => c.Id == lastId).DbName;
-        string nextDbName = "co" + (int.Parse(lastDbName.Replace("co", "")) + 1);
-
-        return nextDbName;
     }
 
     public string CreateDatabase(string newDbName, string createDbTablesSql)
@@ -53,7 +41,7 @@ public class AdminDbContext : DbContext
             cmd.ExecuteNonQuery();
         }
 
-        dbConnStr = dbConnStr.Replace("Database=coadmin;", $"Database={newDbName};");
+        dbConnStr = dbConnStr.Replace("Database=co_admin;", $"Database={newDbName};");
         using (var conn = new SqlConnection(dbConnStr))
         using (var cmd = new SqlCommand(createDbTablesSql, conn))
         {

@@ -45,42 +45,43 @@ public class AccountController(
 			return View();
 		}
 
-		var redirectUrl = $"{Request.Scheme}://{result.Value.Subdomain}.{Request.Host}/Home/login";
-		return Redirect(redirectUrl);
+		//var redirectUrl = $"{Request.Scheme}://{result.Value.Subdomain}.{Request.Host}/Home/login";
+
+		string userMessage= "Se registr&oacute; exitosamente. <br/>Ingrese usando su Usuario (email) y Contraseña.";
+
+		return RedirectToAction("Login", new { signupRequest.CompanyName, SuccessMsg = userMessage });
 	}
 
 	[HttpGet]
 	[Route("/Login")]
 	public IActionResult Login()
 	{
-		string subdomain = Request.Host.Host.Split('.')[0].ToLower();
 		var loginModel = new LoginViewModel();
 
-		if (((string[])["localhost", "www", ""]).Contains(subdomain))
+		if (!string.IsNullOrWhiteSpace(Request.Query["CompanyName"]))
 		{
-			// ignore it
+			loginModel.CompanyName = Request.Query["CompanyName"].ToString();
 		}
-		else
+
+		if (!string.IsNullOrEmpty(Request.Query["SuccessMsg"]))
 		{
-			loginModel.Subdomain = subdomain;
+			ViewBag.SuccessMsg = Request.Query["SuccessMsg"].ToString();
 		}
 
 		return View(loginModel);
 	}
 
 	[HttpPost]
+	[Route("/Login")]
 	public IActionResult Login(LoginViewModel loginViewModel)
 	{
-		if (string.IsNullOrEmpty(loginViewModel.Subdomain))
-		{
-			loginViewModel.Subdomain = loginViewModel.CompanyName.GenerateSlug();
-		}
+		loginViewModel.Subdomain = loginViewModel.CompanyName.GenerateSlug();
 
 		var company = _repo.GetCompany(loginViewModel.Subdomain);
 
-		if (string.IsNullOrEmpty(company.CompanyName))
+		if (company == null)
 		{
-			ModelState.AddModelError("", $"[{loginViewModel.Subdomain}] no existe.");
+			ModelState.AddModelError("", $"{loginViewModel.Subdomain} no existe.");
 			return View(loginViewModel);
 		}
 
@@ -93,9 +94,11 @@ public class AccountController(
 
 		if (siteUser.UserType == UserType.Unknown)   // invalid user credentials
 		{
-			ModelState.AddModelError("", "Usuario o contrase�a incorrecto");
+			ModelState.AddModelError("", "Usuario o contraseña incorrecto");
 			return View(loginViewModel);
 		}
+
+		// CONITNUE HERE... redirect user to respective AREA after a successful login
 
 		string controller = "Login";
 		switch (siteUser.UserType)
@@ -120,10 +123,10 @@ public class AccountController(
 
 		// create claims principal
 		var claims = new List<Claim>
-	{
-		new(ClaimTypes.NameIdentifier, siteUser.Id.ToString()),
-		new(ClaimTypes.Role, siteUser.UserType.ToString())
-	};
+		{
+			new(ClaimTypes.NameIdentifier, siteUser.Id.ToString()),
+			new(ClaimTypes.Role, siteUser.UserType.ToString())
+		};
 		var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
 		var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
 
