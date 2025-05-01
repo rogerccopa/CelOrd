@@ -8,103 +8,100 @@ namespace CelOrdApp.Data;
 
 public class AdminDbContext : DbContext
 {
-	public DbSet<Company> Companies { get; set; }
+    public DbSet<Company> Companies { get; set; }
 
-	public AdminDbContext(DbContextOptions<AdminDbContext> dbCtxOptions) : base(dbCtxOptions) { }
+    public AdminDbContext(DbContextOptions<AdminDbContext> dbCtxOptions) : base(dbCtxOptions) { }
 
-	protected override void OnModelCreating(ModelBuilder modelBuilder)
-	{
-		// Configuring the Company entity
-		modelBuilder.Entity<Company>()
-			.Property(comp => comp.CompanyName)
-			.HasMaxLength(30);
-		modelBuilder.Entity<Company>()
-			.Property(comp => comp.Subdomain)
-			.HasMaxLength(30);
-		modelBuilder.Entity<Company>()
-			.Property(comp => comp.DbName)
-			.HasMaxLength(6);
-		modelBuilder.Entity<Company>()
-			.Property(comp => comp.CreatedAt)
-			.HasDefaultValueSql("getdate()");
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        // Configuring the Company entity
+        modelBuilder.Entity<Company>(company =>
+        {
+            company.HasKey(c => c.Id);
+            company.Property(c => c.Id).ValueGeneratedOnAdd();
+            company.Property(c => c.CompanyName).IsRequired().HasMaxLength(30);
+            company.Property(c => c.Subdomain).IsRequired().HasMaxLength(30);
+            company.Property(c => c.DbName).HasMaxLength(6);
+            company.Property(c => c.CreatedAt).HasDefaultValueSql("getdate()");
+        });
 
-		base.OnModelCreating(modelBuilder);
-	}
+        base.OnModelCreating(modelBuilder);
+    }
 
-	public string GetNextDbName()
-	{
-		var lastId = Companies.Select(c => c.Id).DefaultIfEmpty().Max();
+    public string GetNextDbName()
+    {
+        var lastId = Companies.Select(c => c.Id).DefaultIfEmpty().Max();
 
-		if (lastId == 0)
-			return "co101";
+        if (lastId == 0)
+            return "co101";
 
-		var lastDbName = Companies.First(c => c.Id == lastId).DbName;
-		string nextDbName = "co" + (int.Parse(lastDbName.Replace("co", "")) + 1);
+        var lastDbName = Companies.First(c => c.Id == lastId).DbName;
+        string nextDbName = "co" + (int.Parse(lastDbName.Replace("co", "")) + 1);
 
-		return nextDbName;
-	}
+        return nextDbName;
+    }
 
-	public string CreateDatabase(string newDbName, string createDbTablesSql)
-	{
-		string dbConnStr = this.Database.GetConnectionString()!;
-		string query = $"CREATE DATABASE {newDbName}";
+    public string CreateDatabase(string newDbName, string createDbTablesSql)
+    {
+        string dbConnStr = this.Database.GetConnectionString()!;
+        string query = $"CREATE DATABASE {newDbName}";
 
-		using (var conn = new SqlConnection(dbConnStr))
-		using (var cmd = new SqlCommand(query, conn))
-		{
-			conn.Open();
-			cmd.ExecuteNonQuery();
-		}
+        using (var conn = new SqlConnection(dbConnStr))
+        using (var cmd = new SqlCommand(query, conn))
+        {
+            conn.Open();
+            cmd.ExecuteNonQuery();
+        }
 
-		dbConnStr = dbConnStr.Replace("Database=coadmin;", $"Database={newDbName};");
-		using (var conn = new SqlConnection(dbConnStr))
-		using (var cmd = new SqlCommand(createDbTablesSql, conn))
-		{
-			conn.Open();
-			cmd.ExecuteNonQuery();
-		}
+        dbConnStr = dbConnStr.Replace("Database=coadmin;", $"Database={newDbName};");
+        using (var conn = new SqlConnection(dbConnStr))
+        using (var cmd = new SqlCommand(createDbTablesSql, conn))
+        {
+            conn.Open();
+            cmd.ExecuteNonQuery();
+        }
 
-		return dbConnStr;
-	}
+        return dbConnStr;
+    }
 
-	public void InsertAdminUser(string username, string password, string clientDbConnStr)
-	{
-		string query = $"INSERT INTO Users(FullName, Username, Password, UserType) " +
-						$"VALUES('Admin', @username, @password, {UserType.Admin:D})";
+    public void InsertAdminUser(string username, string password, string clientDbConnStr)
+    {
+        string query = $"INSERT INTO Users(FullName, Username, Password, UserType) " +
+                        $"VALUES('Admin', @username, @password, {UserType.Admin:D})";
 
-		using (var conn = new SqlConnection(clientDbConnStr))
-		using (var cmd = new SqlCommand(query, conn))
-		{
-			conn.Open();
+        using (var conn = new SqlConnection(clientDbConnStr))
+        using (var cmd = new SqlCommand(query, conn))
+        {
+            conn.Open();
 
-			cmd.Parameters.AddWithValue("@username", username);
-			cmd.Parameters.AddWithValue("@password", password);
-			cmd.ExecuteNonQuery();
-		}
-	}
+            cmd.Parameters.AddWithValue("@username", username);
+            cmd.Parameters.AddWithValue("@password", password);
+            cmd.ExecuteNonQuery();
+        }
+    }
 
-	public CelOrdAccount GetAccount(string dbName)
-	{
-		string dbConnStr = this.Database.GetConnectionString()!;
+    public CelOrdAccount GetAccount(string dbName)
+    {
+        string dbConnStr = this.Database.GetConnectionString()!;
 
-		string query = $"SELECT Id, CompanyName, Subdomain, DbName FROM Companies WHERE DbName='{dbName}'";
-		using (var conn = new SqlConnection(dbConnStr))
-		using (var cmd = new SqlCommand(query, conn))
-		{
-			conn.Open();
+        string query = $"SELECT Id, CompanyName, Subdomain, DbName FROM Companies WHERE DbName='{dbName}'";
+        using (var conn = new SqlConnection(dbConnStr))
+        using (var cmd = new SqlCommand(query, conn))
+        {
+            conn.Open();
 
-			var reader = cmd.ExecuteReader();
+            var reader = cmd.ExecuteReader();
 
-			if (!reader.Read())
-				throw new Exception($"Entidad {dbName} no encontrado en la base de datos");
+            if (!reader.Read())
+                throw new Exception($"Entidad {dbName} no encontrado en la base de datos");
 
-			return new CelOrdAccount()
-			{
-				Id = reader.GetInt32(0),
-				CompanyName = reader.GetString(1),
-				Subdomain = reader.GetString(2),
-				DbName = reader.GetString(3)
-			};
-		}
-	}
+            return new CelOrdAccount()
+            {
+                Id = reader.GetInt32(0),
+                CompanyName = reader.GetString(1),
+                Subdomain = reader.GetString(2),
+                DbName = reader.GetString(3)
+            };
+        }
+    }
 }
