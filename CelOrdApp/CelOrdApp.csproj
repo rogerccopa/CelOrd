@@ -17,6 +17,14 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Areas\Admin\Data\" />
+    <Folder Include="Areas\Admin\Models\" />
+    <Folder Include="Areas\Attendant\Data\" />
+    <Folder Include="Areas\Attendant\Models\" />
+    <Folder Include="Areas\Cashier\Data\" />
+    <Folder Include="Areas\Cashier\Models\" />
+    <Folder Include="Areas\Cook\Data\" />
+    <Folder Include="Areas\Cook\Models\" />
     <Folder Include="Files\" />
   </ItemGroup>
 

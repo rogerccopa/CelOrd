@@ -10,7 +10,7 @@ public class LoginViewModel
 	public string Subdomain { get; set; } = string.Empty;
 
 	[Required(ErrorMessage = "Ingrese usuario/email")]
-	[EmailAddress(ErrorMessage = "Email incorrecto")]
+	//[EmailAddress(ErrorMessage = "Email incorrecto")]
 	public string Username { get; set; } = string.Empty;
 
 	[Required(ErrorMessage = "Ingrese contraseña")]

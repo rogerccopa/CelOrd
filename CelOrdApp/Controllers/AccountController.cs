@@ -98,27 +98,24 @@ public class AccountController(
 			return View(loginViewModel);
 		}
 
-		// CONITNUE HERE... redirect user to respective AREA after a successful login
-
-		string controller = "Login";
+		string area = "";
 		switch (siteUser.UserType)
 		{
 			case UserType.Admin:
-				controller = "Admin";
+				area = "Admin";
 				break;
 			case UserType.Cashier:
-				// todo
+				area = "Cashier";
 				break;
 			case UserType.Cook:
-				// todo
+				area = "Cook";
 				break;
 			case UserType.Attendant:
-				// todo
+				area = "Attendant";
 				break;
 			default:
-				ViewBag.Username = loginViewModel.Username;
-				ViewBag.ErrorMsg = $"Tipo de usuario {siteUser.UserType} no es valido.";
-				return View("Login");
+				ModelState.AddModelError("", $"Tipo de usuario {siteUser.UserType} no es valido.");
+				return View(loginViewModel);
 		}
 
 		// create claims principal
@@ -140,7 +137,7 @@ public class AccountController(
 			}
 		);
 
-		return RedirectToAction("Index", controller);
+		return RedirectToAction("Index", "Home", new {area});
 	}
 
 	[HttpGet("/Logout")]
