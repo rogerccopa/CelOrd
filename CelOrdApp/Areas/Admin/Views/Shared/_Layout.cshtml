@@ -11,20 +11,40 @@
     <header>
         <nav class="navbar fixed-top navbar-expand">
             <div class="container">
-                <a class="navbar-brand " href="/">CelOrden</a>
+                <a class="navbar-brand text-secondary" href="/">Cel<strong>Orden</strong></a>
                 <div class="justify-content-end" id="menu">
+                    @{
+                        string controller = ViewContext?.RouteData?.Values["controller"]?.ToString() ?? string.Empty;
+                        string action = ViewContext?.RouteData?.Values["action"]?.ToString() ?? string.Empty;
+                        string page = $"{controller}_{action}";
+                    }
                     <ul class="navbar-nav">
                         <li class="nav-item">
-                            <a class="nav-link text-white" href="/orders">Ordenes</a>
+                            <a asp-area="Admin"
+                               asp-controller="Home"
+                               asp-action="Index"
+                               class="nav-link @(page.Equals("Home_Index") ? "text-warning" : "text-light")">
+                               Ordenes
+                           </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-white" href="/menu">Men&uacute;</a>
+                            <a asp-area="Admin"
+                               asp-controller="Home"
+                               asp-action="Menu"
+                               class="nav-link @(page.Equals("Home_Menu") ? "text-warning" : "text-light")">
+                               Men&uacute;
+                           </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-white" href="/users">Personal</a>
+                            <a asp-area="Admin" 
+                               asp-controller="Home" 
+                               asp-action="Users" 
+                               class="nav-link @(page.Equals("Home_Users") ? "text-warning" : "text-light")">
+                               Personal
+                           </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-white" href="/logout">X</a>
+                            <a class="nav-link text-light" href="/logout">X</a>
                         </li>
                     </ul>
                 </div>
