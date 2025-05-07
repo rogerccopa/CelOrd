@@ -8,6 +8,7 @@ public static class AppExtensions
 	{
 		return userType switch
 		{
+			UserType.Unknown => "",
 			UserType.Admin => "Admin",
 			UserType.Cashier => "Caja",
 			UserType.Cook => "Cocina",

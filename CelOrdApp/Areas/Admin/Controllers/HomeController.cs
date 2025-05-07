@@ -19,16 +19,5 @@ namespace CelOrdApp.Areas.Admin.Controllers
 		{
 			return View();
 		}
-
-		public IActionResult Users()
-		{
-			List<User> accounts = [
-				new User{FullName="Roger Ccopa", Username="roger", Password="roger", UserType=UserType.Attendant, CreatedAt=DateTime.Now},
-				new User{FullName="Enrique Ccopa", Username="kike", Password="kike", UserType=UserType.Cook, CreatedAt=DateTime.Now},
-				new User{FullName="Sonia Quispe Espinoza", Username="sonia", Password="sonia", UserType=UserType.Cashier, CreatedAt=DateTime.Now},
-			];
-
-			return View(accounts);
-		}
 	}
 }
