@@ -77,7 +77,7 @@ public class AccountController(
 	{
 		loginViewModel.Subdomain = loginViewModel.CompanyName.GenerateSlug();
 
-		var company = _repo.GetCompany(loginViewModel.Subdomain);
+		Company? company = _repo.GetCompany(loginViewModel.Subdomain);
 
 		if (company == null)
 		{
@@ -122,7 +122,8 @@ public class AccountController(
 		var claims = new List<Claim>
 		{
 			new(ClaimTypes.NameIdentifier, siteUser.Id.ToString()),
-			new(ClaimTypes.Role, siteUser.UserType.ToString())
+			new(ClaimTypes.Role, siteUser.UserType.ToString()),
+			new("dbName", company.DbName)
 		};
 		var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
 		var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);

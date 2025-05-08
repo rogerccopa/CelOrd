@@ -33,5 +33,9 @@ public class Result<TValue> where TValue : class, new()
 
 public record MessageObj(int Code, string Description)
 {
-	public static MessageObj None => new(0, string.Empty);
+	public MessageObj() : this(0, string.Empty)
+	{
+	}
+
+    public static MessageObj None => new(0, string.Empty);
 }

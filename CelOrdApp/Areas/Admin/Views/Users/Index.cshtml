@@ -16,12 +16,21 @@
 					</tr>
 				</thead>
 				<tbody>
-					@foreach (User user in Model)
+					@if (Model == null || Model?.Count == 0)
 					{
 						<tr>
-							<td>@user.FullName</td>
-							<td>@user.UserType.ToSpanish()</td>
+							<td colspan="2">No hay usuarios</td>
 						</tr>
+					}
+					else if (Model != null)
+					{
+						@foreach (User user in Model)
+						{
+							<tr>
+								<td>@user.FullName</td>
+								<td>@user.UserType.ToSpanish()</td>
+							</tr>
+						}
 					}
 				</tbody>
 			</table>
@@ -60,8 +69,11 @@
 							</div>
 							<div class="col-md-6">
 								<select id="userType" name="userType" class="form-control" required>
+									<option value="" selected>Seleccione un Area</option>
 									@foreach (UserType userType in Enum.GetValues<UserType>())
 									{
+										if (userType == UserType.Unknown) continue;
+
 										<option value="@((int)userType)">@userType.ToSpanish()</option>
 									}
 								</select>
@@ -82,7 +94,9 @@
 		</div>
 	</div>
 </div>
+
 <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
 <script>
 	const app = Vue.createApp({
 		data() {
@@ -110,7 +124,34 @@
 
 		const frmData = new FormData(frm);
 		const data = {
+			FullName: frmData.get("name"),
+			UserName: frmData.get("username"),
+			Password: frmData.get("password"),
+			UserType: Number(frmData.get("userType"))
+		};
 
+		try {
+			const url = "/Admin/Users/SaveUser";
+			const result = axios.post(url, data, {
+				headers: {
+					"Content-Type": "application/json"
+				},
+				withCredentials: true
+			});
+			result.then((response) => {
+				if (response.status == 200) {
+					alert("Usuario creado correctamente");
+					frm.reset();
+					app.showUserForm = false;
+					location.reload();
+				} else {
+					alert("Error al crear el usuario: " + response.data.message);
+				}
+			}).catch((error) => {
+				alert("Error al crear el usuario: " + error.response.data.error);
+			});
+		} catch (error) {
+			console.error("Error:", error);
 		}
 	});
 </script>
