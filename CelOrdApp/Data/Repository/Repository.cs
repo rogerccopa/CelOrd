@@ -67,7 +67,7 @@ public class Repository(AdminDbContext adminDbcontext) : IRepository
 
 	public User GetUser(Company company, string username, string password)
 	{
-		string query = "SELECT TOP 1 Id, FullName, Username, Password, UserType, CreatedAt " +
+		string query = "SELECT TOP 1 Id, FullName, Username, Password, Areas, CreatedAt " +
 						"FROM Users " +
 						"WHERE Username=@username";
 
@@ -91,7 +91,10 @@ public class Repository(AdminDbContext adminDbcontext) : IRepository
 			user.FullName = reader["FullName"].ToString() ?? "";
 			user.Username = reader["Username"].ToString() ?? "";
 			user.Password = reader["Password"].ToString() ?? "";
-			user.UserType = (UserType)reader.GetByte(4);
+			user.Areas = (reader["Areas"].ToString() ?? "").Split(',')
+				.Select(a => Enum.Parse(typeof(Area), a))
+				.Cast<Area>()
+				.ToList() ?? new List<Area>();
 			user.CreatedAt = reader.GetDateTime(5);
 		}
 

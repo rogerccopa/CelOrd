@@ -43,7 +43,7 @@ CREATE TABLE [dbo].[Users](
 	[FullName] [nvarchar](30) NULL,
 	[Username] [nvarchar](30) NULL,
 	[Password] [nvarchar](150) NULL,
-	[UserType] [tinyint] NOT NULL,
+	[Areas] [nvarchar](30) NOT NULL,
 	[CreatedAt] [datetime2](7) NOT NULL,
  CONSTRAINT [PK_Users] PRIMARY KEY CLUSTERED 
 (

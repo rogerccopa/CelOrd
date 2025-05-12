@@ -54,9 +54,9 @@ public class AdminDbContext : DbContext
 
     public void InsertAdminUser(string username, string password, string clientDbConnStr)
     {
-        string query = $"INSERT INTO Users(FullName, Username, Password, UserType) " +
-                        $"VALUES('Admin', @username, @password, {UserType.Admin:D})";
-
+        string query = $"INSERT INTO Users(FullName, Username, Password, Areas) " +
+                        $"VALUES('Admin', @username, @password, '{Area.Admin.ToSpanish()}')";
+        
         using (var conn = new SqlConnection(clientDbConnStr))
         using (var cmd = new SqlCommand(query, conn))
         {

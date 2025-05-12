@@ -1,8 +1,19 @@
 ﻿@using CelOrdApp.Data
 @using static Domain.EntityTypes
+@using System.Text.Json
+
+@model List<User>
 
 @{
 	ViewData["Title"] = "Admin - Users";
+
+	var usersJson = JsonSerializer.Serialize(Model.Select(User => new
+	{
+		FullName = User.FullName,
+		UserName = User.Username,
+		Areas = User.Areas.Select(a => a.ToString())
+	}));
+	var userTypes = Enum.GetValues<Area>();
 }
 
 <div class="container" id="app">
@@ -24,13 +35,10 @@
 					}
 					else if (Model != null)
 					{
-						@foreach (User user in Model)
-						{
-							<tr>
-								<td>@user.FullName</td>
-								<td>@user.UserType.ToSpanish()</td>
-							</tr>
-						}
+						<tr v-for="user in users" :key="user.Id">
+							<td>{{ user.FullName }}</td>
+							<td>{{ user.UserType }}</td>
+						</tr>
 					}
 				</tbody>
 			</table>
@@ -65,18 +73,16 @@
 						</div>
 						<div class="row">
 							<div class="col-md-6">
-								Area
+								Areas
 							</div>
 							<div class="col-md-6">
-								<select id="userType" name="userType" class="form-control" required>
-									<option value="" selected>Seleccione un Area</option>
-									@foreach (UserType userType in Enum.GetValues<UserType>())
-									{
-										if (userType == UserType.Unknown) continue;
-
-										<option value="@((int)userType)">@userType.ToSpanish()</option>
-									}
-								</select>
+							@foreach (Area area in Enum.GetValues<Area>())
+							{
+								<div>
+									<input type="checkbox" name="Areas" id="@area" value="@area">
+									<label for="@area">@area.ToSpanish()</label>
+								</div>
+							}
 							</div>
 						</div>
 						<div class="row mt-3">
@@ -101,7 +107,9 @@
 	const app = Vue.createApp({
 		data() {
 			return {
-				showUserForm: false
+				showUserForm: false,
+				users: @Html.Raw(usersJson),
+				userTypes: @Html.Raw(JsonSerializer.Serialize(userTypes))
 			};
 		},
 		methods: {
@@ -143,7 +151,7 @@
 					alert("Usuario creado correctamente");
 					frm.reset();
 					app.showUserForm = false;
-					location.reload();
+					// location.reload();
 				} else {
 					alert("Error al crear el usuario: " + response.data.message);
 				}

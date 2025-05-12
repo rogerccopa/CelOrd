@@ -1,5 +1,6 @@
 ﻿<!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -7,19 +8,54 @@
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
 </head>
+
 <body>
     <header>
-        <nav class="navbar fixed-top navbar-expand navbar-dark bg-dark">
+        <nav class="navbar fixed-top navbar-expand navbar-dark bg-dark" style="display: block;">
             <div class="container">
-                <a class="navbar-brand " href="/">CelOrden</a>
-                <div class="justify-content-end" id="menu">
-                    <ul class="navbar-nav">
-                        <li class="nav-item">
-                            <a class="nav-link" href="/login">Ingresar</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="/signup">Registrarse</a>
-                        </li>
+                @if (Context?.User?.Identity?.IsAuthenticated == true)
+                {
+                    <a class="navbar-brand " href="/">CelOrden</a>
+                    <div class="justify-content-end" id="menu">
+                        <ul class="navbar-nav">
+                            <li class="nav-item">
+                                <a class="nav-link" href="#" onclick="showSubmenu('servicio')">Servicio</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="#" onclick="showSubmenu('cocina')">Cocina</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="#" onclick="showSubmenu('caja')">Caja</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="#" onclick="showSubmenu('admin')">Admin</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="/logout">X</a>
+                            </li>
+                        </ul>
+                    </div>
+                }
+                else
+                {
+                    <a class="navbar-brand " href="/">CelOrden</a>
+                    <div class="justify-content-end" id="menu">
+                        <ul class="navbar-nav">
+                            <li class="nav-item">
+                                <a class="nav-link" href="/login">Ingresar</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="/signup">Registrarse</a>
+                            </li>
+                        </ul>
+                    </div>
+                }
+            </div>
+            <div class="container">
+                <!-- Submenu Section -->
+                <div id="submenu">
+                    <ul class="nav justify-content-center" id="submenu-items">
+                        <li>This is a submenu</li>
                     </ul>
                 </div>
             </div>
@@ -39,5 +75,44 @@
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
+
+    <script>
+        function showSubmenu(menu)
+        {
+            const submenu = document.getElementById('submenu');
+            const submenuItems = document.getElementById('submenu-items');
+            submenuItems.innerHTML = ''; // Clear existing submenu items
+
+            let items = [];
+            switch (menu)
+            {
+                case 'servicio':
+                    items = ['Menú', 'Ordenes'];
+                    break;
+                case 'cocina':
+                    items = ['Pendientes', 'Procesando', 'Teminados'];
+                    break;
+                case 'caja':
+                    items = ['Pendientes', 'Pagados'];
+                    break;
+                case 'admin':
+                    items = ['Ordenes', 'Menú', 'Personal'];
+                    break;
+            }
+
+            // Populate submenu items
+            items.forEach(item =>
+            {
+                const li = document.createElement('li');
+                li.className = 'nav-item';
+                li.innerHTML = `<a class="nav-link" href="#">${item}</a>`;
+                submenuItems.appendChild(li);
+            });
+
+            // Show the submenu
+            submenu.classList.remove('d-none');
+        }
+    </script>
 </body>
+
 </html>

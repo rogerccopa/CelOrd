@@ -92,37 +92,17 @@ public class AccountController(
 
 		var siteUser = _repo.GetUser(company, loginViewModel.Username, loginViewModel.Password);
 
-		if (siteUser.UserType == UserType.Unknown)   // invalid user credentials
+		if (siteUser.Areas.Count() == 0)   // invalid user credentials
 		{
 			ModelState.AddModelError("", "Usuario o contraseña incorrecto");
 			return View(loginViewModel);
-		}
-
-		string area = "";
-		switch (siteUser.UserType)
-		{
-			case UserType.Admin:
-				area = "Admin";
-				break;
-			case UserType.Cashier:
-				area = "Cashier";
-				break;
-			case UserType.Cook:
-				area = "Cook";
-				break;
-			case UserType.Attendant:
-				area = "Attendant";
-				break;
-			default:
-				ModelState.AddModelError("", $"Tipo de usuario {siteUser.UserType} no es valido.");
-				return View(loginViewModel);
 		}
 
 		// create claims principal
 		var claims = new List<Claim>
 		{
 			new(ClaimTypes.NameIdentifier, siteUser.Id.ToString()),
-			new(ClaimTypes.Role, siteUser.UserType.ToString()),
+			new(ClaimTypes.Role, string.Join(',', siteUser.Areas)),
 			new("dbName", company.DbName)
 		};
 		var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
@@ -138,7 +118,7 @@ public class AccountController(
 			}
 		);
 
-		return RedirectToAction("Index", "Home", new {area});
+		return RedirectToAction("Index", "Dashboard");
 	}
 
 	[HttpGet("/Logout")]

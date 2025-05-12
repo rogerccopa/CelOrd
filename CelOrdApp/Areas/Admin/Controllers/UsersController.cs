@@ -10,8 +10,8 @@ namespace CelOrdApp.Areas.Admin.Controllers;
 
 [Area("Admin")]
 [Authorize(Roles = "Admin")]
-[Route("Admin/[controller]")]
 [ApiController]
+[Route("Admin/[controller]")]
 public class UsersController : Controller
 {
 	private readonly ClientDbContext _clientDbCtx;
@@ -44,12 +44,16 @@ public class UsersController : Controller
 				FullName = userDto.FullName,
 				Username = userDto.Username,
 				Password = userDto.Password,
-				UserType = userDto.UserType
+				Areas = userDto.Areas
 			};
 
 			newUser.Password = passwordHasher.HashPassword(newUser, userDto.Password);
 
 			_clientDbCtx.Users.Add(newUser);
+			_clientDbCtx.SaveChanges();
+
+			userDto.Id = newUser.Id;
+			userDto.Password = string.Empty;
 		}
 		else
 		{
@@ -63,8 +67,8 @@ public class UsersController : Controller
 
 			existingUser.FullName = userDto.FullName;
 			existingUser.Username = userDto.Username;
-			existingUser.UserType = userDto.UserType;
-
+			existingUser.Areas = userDto.Areas;
+			
 			if (!string.IsNullOrEmpty(userDto.Password))
 			{
 				string hashedPassword = passwordHasher.HashPassword(existingUser, userDto.Password);
@@ -72,9 +76,10 @@ public class UsersController : Controller
 				{
 					existingUser.Password = hashedPassword;
 				}
+
+				userDto.Password = string.Empty;
 			}
 		}
-		_clientDbCtx.SaveChanges();
 
 		return Ok(Result<UserDto>.Success(userDto));
 	}

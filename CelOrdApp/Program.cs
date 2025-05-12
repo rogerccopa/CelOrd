@@ -24,7 +24,8 @@ clientDbConnStr = clientDbConnStr
 var appParams = new AppParams
 {
 	SmtpAccount = builder.Configuration["CelOrden_SmtpAccount"] ?? string.Empty,
-	SmtpPassword = builder.Configuration["CelOrden_SmtpPassword"] ?? string.Empty
+	SmtpPassword = builder.Configuration["CelOrden_SmtpPassword"] ?? string.Empty,
+	ClientBaseDbConnStr = clientDbConnStr
 };
 builder.Services.AddSingleton(appParams);
 
@@ -48,6 +49,8 @@ builder.Services.AddAuthentication(options =>
 
 builder.Services.AddAuthorization();
 
+builder.Services.AddHttpContextAccessor(); // So later, we can access the HttpContext in the repository or services
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -65,10 +68,12 @@ app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
 
+/*
 app.MapControllerRoute(
 	name: "areas",
 	pattern: "{area:exists}/{controller=Home}/{action=Index}/{id?}"
 );
+*/
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}"
